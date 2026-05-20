@@ -33,3 +33,11 @@ For a local iPhone Home Screen app that works offline, use the full folder as a 
 5. After that, the calculator should open from the Home Screen without internet.
 
 A same-Wi-Fi `http://Mac-IP:port` server is useful for testing, but iOS Safari generally requires HTTPS for service-worker offline caching.
+
+## iPhone Home Screen
+
+Use Safari, not the GitHub app, Chrome, or the GitHub source-code page. Open the rendered GitHub Pages URL directly:
+
+`https://cpflueger2016.github.io/Biotools/centrifuge-calculator/`
+
+Then use Share -> Add to Home Screen. If you previously added the root repo URL or a GitHub file URL, delete that Home Screen icon first and add the rendered Pages URL again. The app is still a web app, but after one online launch it caches the files locally and should continue opening offline.
