@@ -1,0 +1,25 @@
+{
+  "name": "Centrifuge Adapter Calculator",
+  "short_name": "Centrifuge Calc",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#f6f7f9",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "./",
+  "scope": "./",
+  "orientation": "portrait"
+}

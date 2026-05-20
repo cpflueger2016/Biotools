@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f7f9" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Centrifuge Calc" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Centrifuge Calc</title>
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --ink: #1d2329;
+  --muted: #65717d;
+  --line: #dbe1e7;
+  --teal: #087f8c;
+  --teal-dark: #075f68;
+  --amber: #b26a00;
+  --red: #b4443c;
+  --green-soft: #e8f5f2;
+  --amber-soft: #fff2d9;
+  --shadow: 0 18px 48px rgba(35, 44, 53, 0.1);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 247, 249, 0)),
+    var(--bg);
+  color: var(--ink);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 40px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--teal-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 5vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+.rotor-mark {
+  flex: 0 0 auto;
+  width: clamp(70px, 12vw, 112px);
+  color: var(--teal);
+}
+
+.control-panel,
+.centrifuge-card,
+.math-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.control-panel {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.9fr) minmax(260px, 1.6fr) auto auto;
+  align-items: end;
+  gap: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.target-readout label,
+.mode-toggle legend,
+.config-grid span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.target-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.target-input {
+  width: 132px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 2rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.target-entry span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.force-slider {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--teal);
+}
+
+.quick-row {
+  display: flex;
+  gap: 6px;
+}
+
+.quick-row button,
+.copy-button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.quick-row button {
+  min-width: 48px;
+  min-height: 40px;
+  padding: 7px 10px;
+}
+
+.quick-row button.active,
+.quick-row button:hover,
+.copy-button:hover {
+  border-color: var(--teal);
+  background: var(--green-soft);
+  color: var(--teal-dark);
+}
+
+.mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mode-toggle legend {
+  grid-column: 1 / -1;
+  margin-bottom: 6px;
+}
+
+.mode-toggle label {
+  position: relative;
+}
+
+.mode-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.mode-toggle span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.mode-toggle label:first-of-type span {
+  border-radius: 8px 0 0 8px;
+}
+
+.mode-toggle label:last-of-type span {
+  border-radius: 0 8px 8px 0;
+}
+
+.mode-toggle input:checked + span {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+.centrifuge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.centrifuge-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.copy-button {
+  min-height: 36px;
+  padding: 7px 12px;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.result-row span {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.result-row strong {
+  font-size: clamp(2.2rem, 8vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.rpm-result {
+  background: var(--green-soft);
+  color: var(--teal-dark);
+}
+
+.rcf-result {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.app[data-mode="rpm"] .rcf-result,
+.app[data-mode="rcf"] .rpm-result {
+  display: none;
+}
+
+.radius-visual {
+  padding: 4px 0 2px;
+}
+
+.radius-track {
+  position: relative;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d9dee5;
+}
+
+.radius-effective {
+  display: block;
+  width: 50%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--red));
+}
+
+.radius-labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.radius-labels span:nth-child(2) {
+  text-align: center;
+}
+
+.radius-labels span:last-child {
+  text-align: right;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.config-grid label {
+  position: relative;
+  display: grid;
+  gap: 7px;
+}
+
+.config-grid input,
+.config-grid output {
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 36px 10px 10px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.config-grid output {
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.config-grid em {
+  position: absolute;
+  right: 10px;
+  bottom: 11px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.math-panel {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.math-panel h2 {
+  margin-bottom: 6px;
+}
+
+.math-panel p,
+.formula-grid span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.math-panel p {
+  margin-bottom: 0;
+}
+
+.formula-grid {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translate(-50%, 16px);
+  max-width: calc(100% - 32px);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 800;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 920px) {
+  .control-panel {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .quick-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .app {
+    width: min(100% - 22px, 1120px);
+    padding-top: 18px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .rotor-mark {
+    width: 64px;
+  }
+
+  .centrifuge-grid,
+  .math-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-row {
+    grid-template-columns: 1fr;
+  }
+
+  .result-row strong {
+    text-align: left;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    gap: 10px;
+  }
+
+  .target-input {
+    width: 118px;
+    font-size: 1.7rem;
+  }
+
+  .mode-toggle {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mode-toggle span {
+    padding-inline: 8px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  body { background: var(--bg); }
+  .app { width: min(100% - 18px, 1120px); padding: 14px 0 28px; }
+  .topbar { margin-bottom: 12px; }
+  h1 { font-size: 2.05rem; line-height: 1; }
+  .eyebrow { font-size: 0.7rem; }
+  .control-panel, .centrifuge-card, .math-panel { box-shadow: 0 8px 24px rgba(35, 44, 53, 0.08); }
+  .control-panel { gap: 14px; padding: 14px; }
+  .target-entry { align-items: center; }
+  .target-input { width: 104px; min-height: 56px; font-size: 1.85rem; }
+  .force-slider { min-height: 34px; }
+  .quick-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .quick-row button { min-width: 0; padding-inline: 4px; }
+  .centrifuge-card { gap: 12px; padding: 14px; }
+  .result-row { padding: 12px; }
+  .result-row strong { font-size: 3rem; }
+  .math-panel { display: none; }
+}
+
+    </style>
+  </head>
+  <body>
+    <main class="app" data-mode="both">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">1.5 ml adapter correction</p>
+          <h1>Centrifuge Adapter Calculator</h1>
+        </div>
+        <svg class="rotor-mark" viewBox="0 0 96 96" aria-hidden="true">
+          <circle cx="48" cy="48" r="32" fill="none" stroke="currentColor" stroke-width="5" />
+          <circle cx="48" cy="48" r="8" fill="currentColor" />
+          <path d="M48 48 L77 35" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+          <path d="M48 48 L20 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+          <circle cx="79" cy="34" r="9" fill="none" stroke="currentColor" stroke-width="4" />
+          <circle cx="18" cy="65" r="9" fill="none" stroke="currentColor" stroke-width="4" />
+        </svg>
+      </header>
+
+      <section class="control-panel" aria-label="Target force controls">
+        <div class="target-readout">
+          <label for="targetG">Target force at 1.5 ml tube end</label>
+          <div class="target-entry">
+            <input id="targetG" class="target-input" type="number" inputmode="decimal" min="50" max="2500" step="10" value="850" />
+            <span>x g</span>
+          </div>
+        </div>
+
+        <input id="targetSlider" class="force-slider" type="range" min="50" max="2500" step="10" value="850" aria-label="Target force in x g" />
+
+        <div class="quick-row" aria-label="Quick target forces">
+          <button type="button" data-g="300">300</button>
+          <button type="button" data-g="500">500</button>
+          <button type="button" data-g="850" class="active">850</button>
+          <button type="button" data-g="1000">1000</button>
+          <button type="button" data-g="1200">1200</button>
+        </div>
+
+        <fieldset class="mode-toggle">
+          <legend>Setting type</legend>
+          <label>
+            <input type="radio" name="mode" value="both" checked />
+            <span>Both</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="rpm" />
+            <span>RPM</span>
+          </label>
+          <label>
+            <input type="radio" name="mode" value="rcf" />
+            <span>RCF</span>
+          </label>
+        </fieldset>
+      </section>
+
+      <section class="centrifuge-grid" aria-label="Centrifuge calculations">
+        <article class="centrifuge-card" data-centrifuge="large">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Rotor radius 17.5 cm</p>
+              <h2>Larger centrifuge</h2>
+            </div>
+            <button type="button" class="copy-button" data-copy="large" aria-label="Copy larger centrifuge settings" title="Copy settings">Copy</button>
+          </div>
+
+          <div class="result-row rpm-result">
+            <span>RPM setting</span>
+            <strong data-out="large-rpm">2830</strong>
+          </div>
+          <div class="result-row rcf-result">
+            <span>RCF setting</span>
+            <strong data-out="large-rcf">1566 x g</strong>
+          </div>
+
+          <div class="radius-visual" aria-hidden="true">
+            <div class="radius-track">
+              <span class="radius-effective" data-bar="large"></span>
+            </div>
+            <div class="radius-labels">
+              <span>center</span>
+              <span>tube end</span>
+              <span>bucket end</span>
+            </div>
+          </div>
+
+          <div class="config-grid">
+            <label>
+              <span>Full rotor radius</span>
+              <input data-input="large-full" type="number" inputmode="decimal" min="0.1" step="0.1" value="17.5" />
+              <em>cm</em>
+            </label>
+            <label>
+              <span>Adapter offset</span>
+              <input data-input="large-offset" type="number" inputmode="decimal" min="0" step="0.1" value="8" />
+              <em>cm</em>
+            </label>
+            <label>
+              <span>Effective radius</span>
+              <output data-out="large-effective">9.5 cm</output>
+            </label>
+          </div>
+        </article>
+
+        <article class="centrifuge-card" data-centrifuge="small">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Rotor radius 14.5 cm</p>
+              <h2>Smaller centrifuge</h2>
+            </div>
+            <button type="button" class="copy-button" data-copy="small" aria-label="Copy smaller centrifuge settings" title="Copy settings">Copy</button>
+          </div>
+
+          <div class="result-row rpm-result">
+            <span>RPM setting</span>
+            <strong data-out="small-rpm">3420</strong>
+          </div>
+          <div class="result-row rcf-result">
+            <span>RCF setting</span>
+            <strong data-out="small-rcf">1896 x g</strong>
+          </div>
+
+          <div class="radius-visual" aria-hidden="true">
+            <div class="radius-track">
+              <span class="radius-effective" data-bar="small"></span>
+            </div>
+            <div class="radius-labels">
+              <span>center</span>
+              <span>tube end</span>
+              <span>bucket end</span>
+            </div>
+          </div>
+
+          <div class="config-grid">
+            <label>
+              <span>Full rotor radius</span>
+              <input data-input="small-full" type="number" inputmode="decimal" min="0.1" step="0.1" value="14.5" />
+              <em>cm</em>
+            </label>
+            <label>
+              <span>Adapter offset</span>
+              <input data-input="small-offset" type="number" inputmode="decimal" min="0" step="0.1" value="8" />
+              <em>cm</em>
+            </label>
+            <label>
+              <span>Effective radius</span>
+              <output data-out="small-effective">6.5 cm</output>
+            </label>
+          </div>
+        </article>
+      </section>
+
+      <section class="math-panel" aria-label="Calculation details">
+        <div>
+          <h2>Calculation</h2>
+          <p>RCF = 1.118 x 10<sup>-5</sup> x radius<sub>cm</sub> x RPM<sup>2</sup></p>
+        </div>
+        <div class="formula-grid">
+          <span>effective radius = full rotor radius - adapter offset</span>
+          <span>RCF setting = target RCF x full radius / effective radius</span>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script>
+"use strict";
+
+const RCF_CONSTANT = 1.118e-5;
+const DEFAULTS = {
+  targetG: 850,
+  centrifuges: {
+    large: { name: "Larger centrifuge", fullRadius: 17.5, offset: 8 },
+    small: { name: "Smaller centrifuge", fullRadius: 14.5, offset: 8 },
+  },
+};
+
+const app = document.querySelector(".app");
+const targetInput = document.querySelector("#targetG");
+const targetSlider = document.querySelector("#targetSlider");
+const toast = document.querySelector("#toast");
+const quickButtons = [...document.querySelectorAll("[data-g]")];
+const modeInputs = [...document.querySelectorAll('input[name="mode"]')];
+const rotorInputs = [...document.querySelectorAll("[data-input]")];
+
+let toastTimer = null;
+
+function numberFromInput(value, fallback) {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function roundTo(value, decimals = 1) {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
+function calculate(targetG, fullRadius, offset) {
+  const effectiveRadius = fullRadius - offset;
+
+  if (effectiveRadius <= 0 || targetG <= 0 || fullRadius <= 0) {
+    return {
+      effectiveRadius,
+      rpm: Number.NaN,
+      rcfSetting: Number.NaN,
+    };
+  }
+
+  const rpm = Math.sqrt(targetG / (RCF_CONSTANT * effectiveRadius));
+  const rcfSetting = targetG * (fullRadius / effectiveRadius);
+
+  return { effectiveRadius, rpm, rcfSetting };
+}
+
+function formatInteger(value) {
+  return Number.isFinite(value) ? `${Math.round(value)}` : "Check radius";
+}
+
+function formatRcf(value) {
+  return Number.isFinite(value) ? `${Math.round(value)} x g` : "Check radius";
+}
+
+function formatCm(value) {
+  return Number.isFinite(value) ? `${roundTo(value, 1)} cm` : "Check radius";
+}
+
+function readState() {
+  return {
+    targetG: numberFromInput(targetInput.value, DEFAULTS.targetG),
+    centrifuges: {
+      large: {
+        fullRadius: numberFromInput(document.querySelector('[data-input="large-full"]').value, DEFAULTS.centrifuges.large.fullRadius),
+        offset: numberFromInput(document.querySelector('[data-input="large-offset"]').value, DEFAULTS.centrifuges.large.offset),
+      },
+      small: {
+        fullRadius: numberFromInput(document.querySelector('[data-input="small-full"]').value, DEFAULTS.centrifuges.small.fullRadius),
+        offset: numberFromInput(document.querySelector('[data-input="small-offset"]').value, DEFAULTS.centrifuges.small.offset),
+      },
+    },
+  };
+}
+
+function getStorage() {
+  try {
+    const testKey = "centrifugeCalculatorStorageTest";
+    localStorage.setItem(testKey, "1");
+    localStorage.removeItem(testKey);
+    return localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function saveState(state) {
+  const storage = getStorage();
+  if (!storage) return;
+  storage.setItem("centrifugeCalculatorState", JSON.stringify(state));
+}
+
+function loadState() {
+  const storage = getStorage();
+  if (!storage) return;
+
+  try {
+    const saved = JSON.parse(storage.getItem("centrifugeCalculatorState"));
+    if (!saved) return;
+
+    setTarget(saved.targetG ?? DEFAULTS.targetG, false);
+    for (const key of Object.keys(DEFAULTS.centrifuges)) {
+      const savedConfig = saved.centrifuges?.[key];
+      if (!savedConfig) continue;
+      document.querySelector(`[data-input="${key}-full"]`).value = savedConfig.fullRadius ?? DEFAULTS.centrifuges[key].fullRadius;
+      document.querySelector(`[data-input="${key}-offset"]`).value = savedConfig.offset ?? DEFAULTS.centrifuges[key].offset;
+    }
+  } catch {
+    storage.removeItem("centrifugeCalculatorState");
+  }
+}
+
+function setTarget(value, shouldUpdate = true) {
+  const bounded = Math.min(2500, Math.max(50, Math.round(numberFromInput(value, DEFAULTS.targetG) / 10) * 10));
+  targetInput.value = bounded;
+  targetSlider.value = bounded;
+  quickButtons.forEach((button) => {
+    button.classList.toggle("active", Number(button.dataset.g) === bounded);
+  });
+  if (shouldUpdate) update();
+}
+
+function updateCard(key, config, targetG) {
+  const result = calculate(targetG, config.fullRadius, config.offset);
+  const effectivePercent = Math.max(0, Math.min(100, (result.effectiveRadius / config.fullRadius) * 100));
+
+  document.querySelector(`[data-out="${key}-rpm"]`).textContent = formatInteger(result.rpm);
+  document.querySelector(`[data-out="${key}-rcf"]`).textContent = formatRcf(result.rcfSetting);
+  document.querySelector(`[data-out="${key}-effective"]`).textContent = formatCm(result.effectiveRadius);
+  document.querySelector(`[data-bar="${key}"]`).style.width = `${effectivePercent}%`;
+}
+
+function update() {
+  const state = readState();
+  updateCard("large", state.centrifuges.large, state.targetG);
+  updateCard("small", state.centrifuges.small, state.targetG);
+  saveState(state);
+}
+
+function copySettings(key) {
+  const state = readState();
+  const config = state.centrifuges[key];
+  const result = calculate(state.targetG, config.fullRadius, config.offset);
+
+  const text = [
+    `${DEFAULTS.centrifuges[key].name}`,
+    `Target at 1.5 ml tube end: ${Math.round(state.targetG)} x g`,
+    `Effective radius: ${roundTo(result.effectiveRadius, 1)} cm`,
+    `RPM setting: ${formatInteger(result.rpm)}`,
+    `RCF setting: ${formatRcf(result.rcfSetting)}`,
+  ].join("\n");
+
+  if (!navigator.clipboard?.writeText) {
+    showToast("Copy unavailable");
+    return;
+  }
+
+  navigator.clipboard
+    .writeText(text)
+    .then(() => showToast("Settings copied"))
+    .catch(() => showToast("Copy unavailable"));
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("visible");
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 1800);
+}
+
+function handleTargetChange(event) {
+  setTarget(event.target.value);
+}
+
+targetSlider.addEventListener("input", handleTargetChange);
+targetSlider.addEventListener("change", handleTargetChange);
+targetInput.addEventListener("input", handleTargetChange);
+targetInput.addEventListener("change", handleTargetChange);
+
+quickButtons.forEach((button) => {
+  button.addEventListener("click", () => setTarget(button.dataset.g));
+});
+
+function updateMode() {
+  app.dataset.mode = document.querySelector('input[name="mode"]:checked').value;
+}
+
+modeInputs.forEach((input) => {
+  input.addEventListener("input", updateMode);
+  input.addEventListener("change", updateMode);
+});
+
+rotorInputs.forEach((input) => {
+  input.addEventListener("input", update);
+  input.addEventListener("change", update);
+});
+
+document.querySelectorAll("[data-copy]").forEach((button) => {
+  button.addEventListener("click", () => copySettings(button.dataset.copy));
+});
+
+if ("serviceWorker" in navigator && ["https:", "http:"].includes(window.location.protocol)) {
+  navigator.serviceWorker.register("service-worker.js").catch(() => {});
+}
+
+loadState();
+updateMode();
+update();
+
+    </script>
+  </body>
+</html>
